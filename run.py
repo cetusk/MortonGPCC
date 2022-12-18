@@ -20,7 +20,7 @@ def generateSamplePoints (
 # plot sampled points
 def plotPoints (
     points:np.ndarray,
-    out_path:str=None, plot_color:str="blue",
+    out_path:str=None, plot_color:str="blue", color_alpha:float=0.5,
     new_plot:bool=True, continue_plot:bool=False,
     figure=None, axis=None
 ):
@@ -33,7 +33,7 @@ def plotPoints (
     axis.scatter (
         points [ :, 0 ], points [ :, 1 ],
         s=100, linewidths=2,
-        c=plot_color, alpha=0.5, edgecolors=plot_color
+        c=plot_color, alpha=color_alpha, edgecolors=plot_color
     )
     figure.tight_layout ()
     if out_path is not None:
@@ -56,9 +56,14 @@ if __name__ == "__main__":
     # number of sampling points
     numPoints = 100
 
+    #---------------------
+
+    minBound = np.array ( [ x0, y0 ] )
+    maxBound = np.array ( [ x1, y1 ] )
+
     # create Morton G-PCC instance
     mt = mgpcc.MortonGPCC (
-        min_bound=( x0, y0 ), max_bound=( x1, y1 ),
+        min_bound=minBound, max_bound=maxBound,
         spatial_dim=dim, tree_depth=depth
     )
 
@@ -71,15 +76,15 @@ if __name__ == "__main__":
     # compression and dump file as binary of uint16 ( and get Morton indices )
     mortonIndices = mt.compress ( points, dump_path="encoded.bin" )
     # decompress by the dumped file and get vertices
-    decodedPoints = mt.decompress ( dump_path="encoded.bin" )
+    decodedPoints = mt.decompress ( file_path="encoded.bin" )
 
     # plot in/out points
     fig, ax = plotPoints (
-        points, plot_color="black",
+        points, plot_color="blue", color_alpha=0.7,
         continue_plot=True
     )
     plotPoints (
-        decodedPoints, plot_color="green",
+        decodedPoints, plot_color="green", color_alpha=0.3,
         out_path = "points_fromfile.png",
         new_plot=False, figure=fig, axis=ax
     )
@@ -89,11 +94,11 @@ if __name__ == "__main__":
 
     # plot in/out points
     fig, ax = plotPoints (
-        points, plot_color="black",
+        points, plot_color="blue", color_alpha=0.7,
         new_plot=True, continue_plot=True
     )
     plotPoints (
-        decodedPoints, plot_color="red",
+        decodedPoints, plot_color="red", color_alpha=0.3,
         out_path = "points_fromstream.png",
         new_plot=False, figure=fig, axis=ax
     )
