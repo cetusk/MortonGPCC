@@ -4,7 +4,7 @@ This script compresses vertices data with the Morton order within a given bounda
 ## 0. Prerequisite
 ### 0.1. Environment
 - Python3
-- Ubuntu 20.04 LTS ( may be worked in other OS )
+- Ubuntu 20.04 LTS ( may be worked on other OS )
 
 ### 0.2. Dependencies
 
@@ -30,6 +30,8 @@ Or for contribution such any pull request. I welcome that!
 ```Bash
 git clone https://ghp_xxx@github.com/cetusk/MortonGPCC
 ```
+
+The `xxx` is your git acces token.
 
 ### 0.3. Note
 In current status, this script works on the Python environment and 2 dimensional space. I'm planning to expand it as C++ and 3 dimensional space.
