@@ -53,6 +53,9 @@ if __name__ == "__main__":
     x0 = 0.0; x1 = 100.0
     y0 = 0.0; y1 = 100.0
 
+    # number of sampling points
+    numPoints = 100
+
     # create Morton G-PCC instance
     mt = mgpcc.MortonGPCC (
         min_bound=( x0, y0 ), max_bound=( x1, y1 ),
@@ -60,7 +63,7 @@ if __name__ == "__main__":
     )
 
     # generate points
-    points = generateSamplePoints ( 100, 2, min_bound=( x0, y0 ), max_bound=( x1, y1 ) )
+    points = generateSamplePoints ( numPoints, dim, min_bound=( x0, y0 ), max_bound=( x1, y1 ) )
     # save input points as binary of float32
     with open ( "input.bin", "wb" ) as fh:
         fh.write ( points.astype ( np.float32 ).tobytes () )
