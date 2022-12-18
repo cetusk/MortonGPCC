@@ -50,7 +50,7 @@ python3 run.py
 |Variable|Context|Default|
 |:--|:--|:--|
 |`depth`|Level of detail such tree depth|`8` ( maximum )|
-|`dim`|Spatial dimension|`2` ( only supported )|
+|`dim`|Spatial dimension|`2` ( `2` and `3` are only supported )|
 |`x0`, `y0`, `z0`|Minimum of boundary point|`0.0`|
 |`x1`, `y1`, `z1`|Maximum of boundary point|`100.0`|
 |`numPoints`|Number of points sampled randomly|`100`|
