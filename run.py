@@ -124,7 +124,7 @@ def test_3d ():
     z0 = 0.0; z1 = 100.0
 
     # number of sampling points
-    numPoints = 300
+    numPoints = 100
 
     #---------------------
 

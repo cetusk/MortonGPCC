@@ -34,7 +34,7 @@ git clone https://ghp_xxx@github.com/cetusk/MortonGPCC
 The `xxx` is your git acces token.
 
 ### 0.3. Note
-In current status, this script works on the Python environment and 2 dimensional space. I'm planning to expand it as C++ and 3 dimensional space.
+In current status, this script works on the Python environment. I'm planning to expand it by C++.
 
 
 ## 1. Usage
@@ -51,6 +51,6 @@ python3 run.py
 |:--|:--|:--|
 |`depth`|Level of detail such tree depth|`8` ( maximum )|
 |`dim`|Spatial dimension|`2` ( only supported )|
-|`x0`, `y0`|Minimum of boundary point|`0.0`|
-|`x1`, `y1`|Maximum of boundary point|`100.0`|
+|`x0`, `y0`, `z0`|Minimum of boundary point|`0.0`|
+|`x1`, `y1`, `z1`|Maximum of boundary point|`100.0`|
 |`numPoints`|Number of points sampled randomly|`100`|
