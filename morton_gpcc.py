@@ -8,20 +8,21 @@ class MortonGPCC:
     def __init__ (
         self,
         min_bound:np.ndarray, max_bound:np.ndarray,
-        spatial_dim:int=2, tree_depth:int=3
+        spatial_dimension:int=2, level_of_detail:int=3
     ) -> None:
         # check dimension and depth
-        assert min_bound.shape [ 0 ] == spatial_dim and max_bound.shape [ 0 ] == spatial_dim
-        assert tree_depth > 0 and tree_depth <= MortonGPCC._MAX_DEPTH
+        assert min_bound.shape [ 0 ] == spatial_dimension \
+                and max_bound.shape [ 0 ] == spatial_dimension
+        assert level_of_detail > 0 and level_of_detail <= MortonGPCC._MAX_DEPTH
         # boundaries
         self._minBound = min_bound.copy ()  # x0, y0, z0, ...
         self._maxBound = max_bound.copy ()  # x1, y1, z1, ...
         self._boundSize = self._maxBound - self._minBound  # x1-x0, ...
         assert np.all ( self._boundSize > 0 )
         # tree depth
-        self._dim   = spatial_dim
-        self._depth = tree_depth
-        # leaf grid size: ( x1-x0 ) / 2**tree_depth, ...
+        self._dim   = spatial_dimension
+        self._depth = level_of_detail
+        # leaf grid size: ( x1-x0 ) / 2**level_of_detail, ...
         self._gridSize = self._boundSize / ( 1 << self._depth )
         # number of grids: 2^d ( 1-dim ), 2^md=(2^d)^m ( m-dim )
         self._numGrids1d = 2 ** self._depth
@@ -34,6 +35,14 @@ class MortonGPCC:
         if self._dim*self._depth > 16 and self._dim*self._depth <= 32:
             self._numBits = 32
             self._dataType = np.uint32
+
+    # destructor
+    def __del__ ( self ) -> None:
+        del self._minBound;  self._minBound  = None
+        del self._maxBound;  self._maxBound  = None
+        del self._boundSize; self._boundSize = None
+        del self._gridSize;  self._gridSize  = None
+        del self._data;      self._data      = None
 
     def pushVertex ( self, point:tuple ) -> None:
         # check dimension

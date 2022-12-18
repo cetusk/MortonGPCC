@@ -7,13 +7,13 @@ import morton_gpcc as mgpcc
 
 # generate random sample points
 def generateSamplePoints (
-    num_points:int, spatial_dim:int=2,
+    num_points:int, spatial_dimension:int=2,
     min_bound:np.ndarray=np.array([0.0,0.0]),
     max_bound:np.ndarray=np.array([100.0,100.0])
 ) -> np.ndarray:
-    assert min_bound.shape [ 0 ] == spatial_dim
-    assert max_bound.shape [ 0 ] == spatial_dim
-    _pts = np.random.rand ( num_points, spatial_dim )
+    assert min_bound.shape [ 0 ] == spatial_dimension
+    assert max_bound.shape [ 0 ] == spatial_dimension
+    _pts = np.random.rand ( num_points, spatial_dimension )
     return ( max_bound-min_bound ) * _pts + min_bound
 
 # plot sampled points
@@ -54,7 +54,7 @@ def plotPoints (
 
 def test_2d ():
 
-    # level of detail and apatial dimension
+    # level of detail and spatial dimension
     depth = 8
     dim = 2
 
@@ -71,9 +71,9 @@ def test_2d ():
     maxBound = np.array ( [ x1, y1 ] )
 
     # create Morton G-PCC instance
-    mt = mgpcc.MortonGPCC (
+    pcc = mgpcc.MortonGPCC (
         min_bound=minBound, max_bound=maxBound,
-        spatial_dim=dim, tree_depth=depth
+        spatial_dimension=dim, level_of_detail=depth
     )
 
     # generate points
@@ -83,9 +83,9 @@ def test_2d ():
         fh.write ( points.astype ( np.float32 ).tobytes () )
 
     # compression and dump file as binary of uint16 ( and get Morton indices )
-    mortonIndices = mt.compress ( points, dump_path="encoded.bin" )
+    mortonIndices = pcc.compress ( points, dump_path="encoded.bin" )
     # decompress by the dumped file and get vertices
-    decodedPoints = mt.decompress ( file_path="encoded.bin" )
+    decodedPoints = pcc.decompress ( file_path="encoded.bin" )
 
     # plot in/out points
     fig, ax = plotPoints (
@@ -94,12 +94,12 @@ def test_2d ():
     )
     plotPoints (
         decodedPoints, plot_color="green", color_alpha=0.3,
-        out_path = "points_fromfile.png",
+        out_path="points_fromfile.png",
         new_plot=False, figure=fig, axis=ax
     )
 
     # decompress by the Morton indices and get vertices
-    decodedPoints = mt.decompress ( data=mortonIndices )
+    decodedPoints = pcc.decompress ( data=mortonIndices )
 
     # plot in/out points
     fig, ax = plotPoints (
@@ -108,13 +108,13 @@ def test_2d ():
     )
     plotPoints (
         decodedPoints, plot_color="red", color_alpha=0.3,
-        out_path = "points_fromstream.png",
+        out_path="points_fromstream.png",
         new_plot=False, figure=fig, axis=ax
     )
 
 def test_3d ():
 
-    # level of detail and apatial dimension
+    # level of detail and spatial dimension
     depth = 8
     dim = 3
 
@@ -132,9 +132,9 @@ def test_3d ():
     maxBound = np.array ( [ x1, y1, z1 ] )
 
     # create Morton G-PCC instance
-    mt = mgpcc.MortonGPCC (
+    pcc = mgpcc.MortonGPCC (
         min_bound=minBound, max_bound=maxBound,
-        spatial_dim=dim, tree_depth=depth
+        spatial_dimension=dim, level_of_detail=depth
     )
 
     # generate points
@@ -143,10 +143,10 @@ def test_3d ():
     with open ( "input.bin", "wb" ) as fh:
         fh.write ( points.astype ( np.float32 ).tobytes () )
 
-    # compression and dump file as binary of uint16 ( and get Morton indices )
-    mortonIndices = mt.compress ( points, dump_path="encoded.bin" )
+    # compression and dump file as binary of uint32 ( and get Morton indices )
+    mortonIndices = pcc.compress ( points, dump_path="encoded.bin" )
     # decompress by the dumped file and get vertices
-    decodedPoints = mt.decompress ( file_path="encoded.bin" )
+    decodedPoints = pcc.decompress ( file_path="encoded.bin" )
 
     # plot in/out points
     fig, ax = plotPoints (
@@ -156,13 +156,13 @@ def test_3d ():
     )
     plotPoints (
         decodedPoints, plot_color="green", color_alpha=0.3,
-        out_path = "points_fromfile.png",
+        out_path="points_fromfile.png",
         project_3d=True,
         new_plot=False, figure=fig, axis=ax
     )
 
     # decompress by the Morton indices and get vertices
-    decodedPoints = mt.decompress ( data=mortonIndices )
+    decodedPoints = pcc.decompress ( data=mortonIndices )
 
     # plot in/out points
     fig, ax = plotPoints (
@@ -172,13 +172,69 @@ def test_3d ():
     )
     plotPoints (
         decodedPoints, plot_color="red", color_alpha=0.3,
-        out_path = "points_fromstream.png",
+        out_path="points_fromstream.png",
         project_3d=True,
         new_plot=False, figure=fig, axis=ax
     )
 
+def errorAnalysis (
+    spatial_dimension:int,
+    level_of_detail:int,
+    bounding_size:float,
+    number_of_points:int
+):
+
+    # level of detail and spatial dimension
+    depth = level_of_detail
+    dim = spatial_dimension
+
+    # bound size
+    size = bounding_size
+
+    # number of sampling points
+    numPoints = number_of_points
+
+    #---------------------
+
+    minBound = np.array ( [  0.0 for _ in range ( dim ) ] )
+    maxBound = np.array ( [ size for _ in range ( dim ) ] )
+
+    # create Morton G-PCC instance
+    pcc = mgpcc.MortonGPCC (
+        min_bound=minBound, max_bound=maxBound,
+        spatial_dimension=dim, level_of_detail=depth
+    )
+
+    # generate points
+    points = generateSamplePoints ( numPoints, dim, min_bound=minBound, max_bound=maxBound )
+
+    # compression and get Morton indices
+    mortonIndices = pcc.compress ( points )
+    # decompress by the Morton indices and get vertices
+    decodedPoints = pcc.decompress ( data=mortonIndices )
+
+    # distance error between ground truth and decoded points
+    validMask = pcc.innerMask ( points )
+    return np.sqrt (
+        (
+            np.linalg.norm (
+                decodedPoints [ validMask, : ] - points [ validMask, : ],
+                axis=1
+            ) ** 2
+        ).sum ()
+    )
 
 
 if __name__ == "__main__":
     # test_2d ()
-    test_3d ()
+    # test_3d ()
+
+    print ( "LoD,Dimension,NumPoints,Size,Error" )
+    for lod in range ( 3, 8+1 ):
+        error = errorAnalysis (
+            spatial_dimension=3,
+            level_of_detail=lod,
+            bounding_size=100.0,
+            number_of_points=1000
+        )
+        print ( lod, 3, 1000, 100.0, error )
