@@ -31,10 +31,9 @@ class MortonGPCC:
         # data type
         self._numBits = 16  # dim*depth < 16
         self._dataType = np.uint16
-        # ToDo
-        # if self._dim*self._depth > 16 and self._dim*self._depth <= 32:
-        #     self._numBits = 32
-        #     self._dataType = np.uint32
+        if self._dim*self._depth > 16 and self._dim*self._depth <= 32:
+            self._numBits = 32
+            self._dataType = np.uint32
 
     def pushVertex ( self, point:tuple ) -> None:
         # check dimension
@@ -179,9 +178,9 @@ class MortonGPCC:
             _idx = ( _idx | ( _idx<<2 ) ) & 0x33333333
             return ( _idx | ( _idx<<1 ) ) & 0x55555555
         elif self._dim == 3:
-            _idx = ( _idx | ( _idx<<8 ) ) & 0x0f00f00f
-            _idx = ( _idx | ( _idx<<4 ) ) & 0xc30c30c3
-            return ( _idx | ( _idx<<2 ) ) & 0x49249249
+            _idx = ( _idx | ( _idx<<8 ) ) & 0x0000f00f
+            _idx = ( _idx | ( _idx<<4 ) ) & 0x000c30c3
+            return ( _idx | ( _idx<<2 ) ) & 0x00249249
         else:
             return None
 
