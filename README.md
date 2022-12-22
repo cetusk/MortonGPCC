@@ -25,13 +25,7 @@ python3 -m pip install numpy matplotlib
 git clone https://github.com/cetusk/MortonGPCC
 ```
 
-Or for contribution such any pull request. I welcome that!
-
-```Bash
-git clone https://ghp_xxx@github.com/cetusk/MortonGPCC
-```
-
-The `xxx` is your git acces token.
+I welcome to contribute such any pull request !
 
 ### 0.3. Note
 In current status, this script works on the Python environment. I'm planning to expand it by C++.
